@@ -48,6 +48,7 @@ type IncogniaClientConfig struct {
 	TokenProvider     TokenProvider
 	Timeout           time.Duration
 	TokenRouteTimeout time.Duration
+	RoundTripper     http.RoundTripper
 	// Deprecated: Region is no longer used to determine endpoints
 	Region Region
 }
@@ -101,8 +102,13 @@ func New(config *IncogniaClientConfig) (*Client, error) {
 	if timeout == 0 {
 		timeout = defaultNetClientTimeout
 	}
+	transport := config.RoundTripper
+	if transport == nil {
+		transport = http.DefaultTransport
+	}
 	netClient := &http.Client{
-		Timeout: timeout,
+		Timeout:   timeout,
+		Transport: transport,
 	}
 
 	tokenRouteTimeout := config.TokenRouteTimeout
